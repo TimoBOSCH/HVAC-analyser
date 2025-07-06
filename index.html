@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricemirror - Nefit Bosch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+            color: white;
+            padding: 50px 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            font-weight: 300;
+            letter-spacing: -1px;
+        }
+        
+        .header .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .header .brand {
+            font-size: 0.9em;
+            margin-top: 10px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .form-container {
+            padding: 50px 40px;
+        }
+        
+        .section-title {
+            font-size: 1.8em;
+            color: #dc3545;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 300;
+        }
+        
+        .form-group {
+            margin-bottom: 30px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+        
+        .form-group select:focus,
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #dc3545;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+            background: white;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
+        }
+        
+        .btn-primary:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: #dc3545;
+            border: 2px solid #dc3545;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-secondary:hover {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 60px 40px;
+            background: #f8f9fa;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #e1e8ed;
+            border-top: 4px solid #dc3545;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 400;
+        }
+        
+        .loading p {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+        
+        .result {
+            display: none;
+            text-align: center;
+            padding: 50px 40px;
+            background: #f8f9fa;
+            margin: 30px;
+            border-radius: 12px;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #27ae60;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5em;
+        }
+        
+        .result h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+        
+        .result p {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+            padding: 0 20px;
+        }
+        
+        .feature {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-top: 4px solid #dc3545;
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
+            border-radius: 12px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8em;
+        }
+        
+        .feature h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .feature p {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+        
+        .dashboard-redirect {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            border: 2px solid #27ae60;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        
+        .dashboard-redirect h4 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            font-weight: 500;
+        }
+        
+        .dashboard-redirect p {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .summary-box {
+            background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .summary-box h4 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .summary-box p {
+            margin: 8px 0;
+            color: #2c3e50;
+            line-height: 1.5;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid #f57c00;
+        }
+        
+        .warning-box h4 {
+            color: #ef6c00;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .info-panel {
+            background: linear-gradient(135deg, #ffeaea 0%, #ffcccc 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .info-panel strong {
+            color: #dc3545;
+        }
+        
+        .info-panel small {
+            color: #546e7a;
+        }
+        
+        .file-input {
+            padding: 25px;
+            border: 2px dashed #dc3545;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .file-input:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+        }
+        
+        .progress-steps {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+            padding: 0 20px;
+        }
+        
+        .step {
+            flex: 1;
+            max-width: 200px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: #e1e8ed;
+        }
+        
+        .step.active::after {
+            background: #dc3545;
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e1e8ed;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: 500;
+        }
+        
+        .step.active .step-circle {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .step.completed .step-circle {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .step-title {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        .step.active .step-title {
+            color: #dc3545;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>Thermotechniek Vergelijker</h1>
+                <p class="subtitle">Professionele analyse van verwarmingsoplossingen</p>
+                <p class="brand">Nefit Bosch Professional</p>
+            </div>
+        </div>
+        
+        <div class="progress-steps">
+            <div class="step active" id="step1">
+                <div class="step-circle">1</div>
+                <div class="step-title">Specificaties</div>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-circle">2</div>
+                <div class="step-title">Data Upload</div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-circle">3</div>
+                <div class="step-title">Analyse</div>
+            </div>
+        </div>
+        
+        <div class="form-container" id="formContainer">
+            <h2 class="section-title">Vergelijkingsparameters</h2>
+            <form id="comparisonForm">
+                <div class="form-group">
+                    <label for="articleType">Productcategorie</label>
+                    <input type="text" id="articleType" name="articleType" placeholder="Bijvoorbeeld: warmtepompen, cv-ketels, hybride systemen" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="spareParts">Onderdelen en accessoires (optioneel)</label>
+                    <input type="text" id="spareParts" name="spareParts" placeholder="Bijvoorbeeld: filters, sensoren, regelaars">
+                </div>
+                
+                <div class="form-group">
+                    <label for="dataSource">Databron selectie</label>
+                    <select id="dataSource" name="dataSource" required>
+                        <option value="">Selecteer databron...</option>
+                        <option value="2BA prijs data">2BA Prijsdatabase</option>
+                        <option value="Warmteservice prijs data">Warmteservice Prijsdata</option>
+                        <option value="Installata prijs data">Installata Prijsinformatie</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="specifications">Vergelijkingscriteria</label>
+                    <input type="text" id="specifications" name="specifications" placeholder="Bijvoorbeeld: prijs, vermogen, energielabel, COP-waarde, afmetingen" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">E-mailadres voor rapportage</label>
+                    <input type="email" id="email" name="email" placeholder="uw.email@bedrijf.nl" required>
+                </div>
+                
+                <button type="submit" class="btn-primary" id="submitBtn">
+                    Vergelijking Starten
+                </button>
+            </form>
+        </div>
+        
+        <div class="loading" id="loadingState">
+            <div class="loading-spinner"></div>
+            <h3>Analyse wordt uitgevoerd</h3>
+            <p>Het vergelijk wordt voorbereid</p>
+            <p>U ontvangt een e-mailnotificatie zodra de analyse gereed is</p>
+        </div>
+        
+        <div class="result" id="resultState">
+            <div class="success-icon">✓</div>
+            <h3>Parameters Opgeslagen</h3>
+            <p id="resultMessage">Uw vergelijkingsparameters zijn succesvol opgeslagen</p>
+            <div id="resultDetails"></div>
+            
+            <button type="button" class="btn-primary" onclick="showFileUpload()" style="margin-top: 30px;">
+                Volgende Stap: Databestand Uploaden
+            </button>
+        </div>
+        
+        <div class="form-container" id="fileUploadContainer" style="display: none;">
+            <h2 class="section-title">Databestand Upload</h2>
+            <p style="text-align: center; color: #7f8c8d; margin-bottom: 40px;">
+                Upload uw productdatabase voor gedetailleerde vergelijkingsanalyse
+            </p>
+            
+            <div id="firstPageSummary" class="summary-box">
+                <h4>Geselecteerde Parameters</h4>
+                <p>Parameters worden geladen...</p>
+            </div>
+            
+            <div class="info-panel">
+                <strong>Analyse-ID:</strong> <span id="displayDashboardId">Wordt gegenereerd...</span>
+                <br><small>Deze identificatiecode wordt automatisch gekoppeld aan uw analyse</small>
+            </div>
+            
+            <form id="fileUploadForm">
+                <div class="form-group">
+                    <label for="fileInput">Selecteer databestand</label>
+                    <input type="file" id="fileInput" name="file" accept=".csv,.xlsx,.json,.txt" required class="file-input">
+                    <small style="color: #7f8c8d; margin-top: 15px; display: block;">
+                        Ondersteunde formaten: CSV, Excel (.xlsx), JSON, Tekstbestanden
+                    </small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fileDescription">Bestandsomschrijving (optioneel)</label>
+                    <textarea id="fileDescription" name="description" rows="3" placeholder="Bijvoorbeeld: Productcatalogus warmtepompen Q1 2024, Prijslijst cv-ketels..." style="resize: vertical;"></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    Upload en Start Analyse
+                </button>
+            </form>
+            
+            <div class="loading" id="uploadLoadingState" style="display: none; background: white; margin: 0; padding: 60px 40px;">
+                <div class="loading-spinner"></div>
+                <h3>Analyse wordt uitgevoerd</h3>
+                <p>Uw databestand wordt verwerkt en de vergelijkingsanalyse is gestart.</p>
+                <p><strong>Geschatte verwerkingstijd:</strong> onbekend</p>
+                <p style="margin-top: 20px; color: #7f8c8d;">
+                    De analyse omvat geautomatiseerde data-extractie, specificatievergelijking, 
+                    prijsanalyse en het genereren van professionele rapportages.
+                </p>
+                <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); padding: 20px; border-radius: 8px; margin-top: 30px; border-left: 4px solid #2196f3;">
+                    <p style="color: #1976d2; margin: 0; font-weight: 500;">
+                        💡 U ontvangt een e-mailnotificatie zodra de analyse voltooid is
+                    </p>
+                </div>
+            </div>
+            
+            <div class="dashboard-redirect" id="dashboardInfo" style="display: none; margin-top: 30px;">
+                <h4>✓ Analyse Voltooid</h4>
+                <p>Uw vergelijkingsanalyse is succesvol uitgevoerd en alle resultaten zijn beschikbaar.</p>
+                <p>Bekijk nu de gedetailleerde rapporten, grafieken en aanbevelingen in het interactieve dashboard.</p>
+                <button type="button" class="btn-secondary" onclick="goToDashboard()">
+                    Dashboard Openen
+                </button>
+            </div>
+        </div>
+        
+        <div class="features">
+			<div class="feature">
+				<div class="feature-icon">⚡</div>
+				<h3>Snelle Analyse</h3>
+				<p>Geautomatiseerde vergelijking van technische specificaties en prijzen binnen minuten</p>
+			</div>
+			<div class="feature">
+				<div class="feature-icon">📊</div>
+				<h3>Visuele Rapportage</h3>
+				<p>Interactieve grafieken en tabellen voor overzichtelijke presentatie van resultaten</p>
+			</div>
+			<div class="feature">
+				<div class="feature-icon">🎯</div>
+				<h3>Professionele Aanbevelingen</h3>
+				<p>Objectieve analyse van prijs-prestatieverhouding en technische geschiktheid</p>
+			</div>
+			<div class="feature">
+				<div class="feature-icon">📈</div>
+				<h3>Strategische Inzichten</h3>
+				<p>Marktpositionering en concurrentie-analyse voor datagedreven productbeslissingen</p>
+			</div>
+		</div>
+
+    <script>
+        const WEBHOOK_URL = 'https://timoofso.app.n8n.cloud/webhook/vergelijk';
+        const FILE_UPLOAD_WEBHOOK = 'https://timoofso.app.n8n.cloud/webhook/file-upload';
+        
+        let dashboardUrl = null;
+        let dashboardId = null;
+        let firstPageData = {};
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            dashboardId = `analysis_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            dashboardUrl = `dashboard.html?id=${dashboardId}`;
+            
+            console.log('Analysis ID generated:', dashboardId);
+            document.getElementById('displayDashboardId').textContent = dashboardId;
+        });
+        
+        document.getElementById('comparisonForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {
+                'Welke artikelen wil je vergelijken? ': formData.get('articleType'),
+                'Wil je spare parts vergelijken van die dan hier in ?': formData.get('spareParts') || '',
+                'Welke data wil je gebruiken?': formData.get('dataSource'),
+                'Welke specificaties wil je vergelijken?': formData.get('specifications'),
+                'email adress': formData.get('email'),
+                'dashboard_id': dashboardId
+            };
+            
+            firstPageData = {
+                articleType: formData.get('articleType'),
+                spareParts: formData.get('spareParts') || '',
+                dataSource: formData.get('dataSource'),
+                specifications: formData.get('specifications'),
+                email: formData.get('email'),
+                dashboard_id: dashboardId
+            };
+            
+            console.log('Analysis parameters saved:', firstPageData);
+            
+            updateProgressStep(1, 'completed');
+            updateProgressStep(2, 'active');
+            
+            document.getElementById('formContainer').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'block';
+            
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('resultState').style.display = 'block';
+                
+                document.getElementById('resultMessage').textContent = 'Uw vergelijkingsparameters zijn succesvol opgeslagen. Ga door naar de volgende stap om uw databestand te uploaden.';
+                
+                document.getElementById('resultDetails').innerHTML = `
+                    <p><strong>Analyse-ID:</strong> ${dashboardId}</p>
+                    <p><strong>Status:</strong> Parameters opgeslagen - wachtend op databestand</p>
+                `;
+                
+            } catch (error) {
+                console.error('Analysis initiation error:', error);
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('resultState').style.display = 'block';
+                document.getElementById('resultMessage').textContent = 'Er is een fout opgetreden. Probeer het opnieuw.';
+            }
+        });
+        
+        function updateProgressStep(stepNumber, status) {
+            const step = document.getElementById(`step${stepNumber}`);
+            step.className = `step ${status}`;
+        }
+        
+        function showFileUpload() {
+            document.getElementById('resultState').style.display = 'none';
+            document.getElementById('fileUploadContainer').style.display = 'block';
+            
+            updateProgressStep(2, 'completed');
+            updateProgressStep(3, 'active');
+            
+            if (dashboardId) {
+                document.getElementById('displayDashboardId').textContent = dashboardId;
+            } else {
+                document.getElementById('displayDashboardId').textContent = 'Generatiefout';
+            }
+            
+            showFirstPageSummary();
+        }
+        
+        function showFirstPageSummary() {
+            const summaryDiv = document.getElementById('firstPageSummary');
+            if (summaryDiv && firstPageData && Object.keys(firstPageData).length > 0) {
+                summaryDiv.innerHTML = `
+                    <h4>Geselecteerde Parameters</h4>
+                    <p><strong>Productcategorie:</strong> ${firstPageData.articleType || 'Niet gespecificeerd'}</p>
+                    <p><strong>Onderdelen:</strong> ${firstPageData.spareParts || 'Geen'}</p>
+                    <p><strong>Databron:</strong> ${firstPageData.dataSource || 'Niet geselecteerd'}</p>
+                    <p><strong>Vergelijkingscriteria:</strong> ${firstPageData.specifications || 'Niet gespecificeerd'}</p>
+                    <p><strong>E-mailadres:</strong> ${firstPageData.email || 'Niet opgegeven'}</p>
+                `;
+            } else {
+                summaryDiv.className = 'warning-box';
+                summaryDiv.innerHTML = `
+                    <h4>Parameters Niet Beschikbaar</h4>
+                    <p>Er zijn geen parameters uit de vorige stap beschikbaar.</p>
+                    <p><strong>Actie vereist:</strong> Keer terug naar stap 1 om de analyse parameters in te stellen.</p>
+                    <button type="button" class="btn-secondary" onclick="goBackToStep1()" style="margin-top: 15px;">
+                        Terug naar Parameters
+                    </button>
+                `;
+            }
+        }
+        
+        function goBackToStep1() {
+            document.getElementById('fileUploadContainer').style.display = 'none';
+            document.getElementById('formContainer').style.display = 'block';
+            updateProgressStep(2, '');
+            updateProgressStep(3, '');
+            updateProgressStep(1, 'active');
+        }
+        
+        function goToDashboard() {
+            if (dashboardUrl) {
+                console.log('Redirecting to dashboard:', dashboardUrl);
+                window.location.href = dashboardUrl;
+            } else {
+                alert('Dashboard niet beschikbaar. Probeer het later opnieuw.');
+            }
+        }
+        
+        document.getElementById('fileUploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('fileInput');
+            const description = document.getElementById('fileDescription').value;
+            
+            if (!fileInput.files[0]) {
+                alert('Selecteer eerst een databestand voor upload.');
+                return;
+            }
+            
+            formData.append('file', fileInput.files[0]);
+            formData.append('description', description);
+            formData.append('timestamp', new Date().toISOString());
+            formData.append('dashboardId', dashboardId);
+            
+            if (firstPageData && Object.keys(firstPageData).length > 0) {
+                formData.append('articleType', firstPageData.articleType || '');
+                formData.append('spareParts', firstPageData.spareParts || '');
+                formData.append('dataSource', firstPageData.dataSource || '');
+                formData.append('specifications', firstPageData.specifications || '');
+                formData.append('email', firstPageData.email || '');
+                formData.append('firstPageDataJSON', JSON.stringify(firstPageData));
+                
+                console.log('Analysis parameters included in upload:', firstPageData);
+            } else {
+                console.warn('No analysis parameters available for upload');
+                formData.append('warning', 'Parameters niet beschikbaar - directe upload');
+                
+                const confirmProceed = confirm('Er zijn geen analyseparameters beschikbaar uit de vorige stap.\n\nWilt u doorgaan met alleen de bestandsupload?\n\nKlik "Annuleren" om terug te gaan naar de parameterinstellingen.');
+                if (!confirmProceed) {
+                    document.querySelector('#fileUploadForm button').textContent = 'Upload en Start Analyse';
+                    document.querySelector('#fileUploadForm button').disabled = false;
+                    goBackToStep1();
+                    return;
+                }
+            }
+            
+            console.log('Analysis ID included:', dashboardId);
+            
+            try {
+                document.querySelector('#fileUploadForm button').textContent = 'Uploaden...';
+                document.querySelector('#fileUploadForm button').disabled = true;
+                
+                // Show upload loading screen
+                document.getElementById('fileUploadForm').style.display = 'none';
+                document.getElementById('uploadLoadingState').style.display = 'block';
+                
+                const response = await fetch(FILE_UPLOAD_WEBHOOK, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                // Simulate analysis time (5-15 minutes)
+                // In real implementation, this would be handled by your backend
+                setTimeout(() => {
+                    document.getElementById('uploadLoadingState').style.display = 'none';
+                    document.getElementById('dashboardInfo').style.display = 'block';
+                    updateProgressStep(3, 'completed');
+                }, Math.random() * (15 - 5) * 60 * 1000 + 5 * 60 * 1000); // Random between 5-15 minutes
+                
+                // For demo purposes, also show completion after 10 seconds
+                setTimeout(() => {
+                    document.getElementById('uploadLoadingState').style.display = 'none';
+                    document.getElementById('dashboardInfo').style.display = 'block';
+                    updateProgressStep(3, 'completed');
+                }, 10000); // 10 seconds for demo
+                
+            } catch (error) {
+                console.error('Upload error:', error);
+                document.getElementById('uploadLoadingState').style.display = 'none';
+                document.getElementById('fileUploadForm').style.display = 'block';
+                alert('Upload mislukt. Controleer uw internetverbinding en probeer opnieuw.');
+                document.querySelector('#fileUploadForm button').textContent = 'Upload en Start Analyse';
+                document.querySelector('#fileUploadForm button').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
